@@ -1,10 +1,10 @@
 # COBSPackets
 
-##COBS packet encoding
+## COBS packet encoding
 
    Features include that the marker can be a byte other than zero.
 
-###Usage:
+### Usage:
 
     using COBSPackets
 
