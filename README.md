@@ -1,0 +1,2 @@
+# COBSPackets
+COBS packet encoding
