@@ -1,6 +1,6 @@
-# COBSPackets
+# COBSPackets.jl
 
-## COBS packet encoding
+## COBS packet encoding in Julia
 
    Features include that the marker can be a byte other than zero.
 
