@@ -12,7 +12,7 @@
 
     decoded = COBSdecode(encoded)
 
-    # or with marker byte chose to be 0x05:
+    # or with marker byte chosen to be 0x05 instead of 0:
 
     encoded5 = COBSencode(bytes, 5)
 
