@@ -56,7 +56,7 @@ end
     The marker must be the same as was used for encode (defaults to zero).
     See also: pythonhosted.org/cobs/cobsr-intro.html
 """
-function COBSRdecode(buffer::AbstractVector, marker = 0x00)
+function COBSdecode(buffer::AbstractVector, marker = 0x00)
     decoded = UInt8[]
     bdx, len = 1, length(buffer)
     lpos, lchar = 1, marker
@@ -71,8 +71,8 @@ function COBSRdecode(buffer::AbstractVector, marker = 0x00)
         end
         code < 0xff && bdx < len && push!(decoded, marker)
     end
-    # Restore from reduced format if present
-    lchar != marker && lchar + lpos > len && (decoded[end] = lchar)
+    # Restore from reduced format if using COBS/R and reduced format present
+    reducedformat && lchar != marker && lchar + lpos > len && (decoded[end] = lchar)
     return decoded
 end
 
