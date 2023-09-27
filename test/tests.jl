@@ -1,4 +1,4 @@
-using COBSPackets
+using COBSR
 using Test
 
 const tests = [
@@ -20,4 +20,8 @@ for t in tests
     @test t == COBSdecode(COBSencode(t, 3), 3)
     @test t == COBSdecode(COBSencode(t, 0xfe), 0xfe)
     @test 0 ∉ t || t != COBSdecode(COBSencode(t, 0), 3)
+    @test t == COBSRdecode(COBSRencode(t))
+    @test t == COBSRdecode(COBSRencode(t, 3), 3)
+    @test t == COBSRdecode(COBSRencode(t, 0xfe), 0xfe)
+    @test 3 ∉ t || t != COBSRdecode(COBSRencode(t, 0), 3)
 end
