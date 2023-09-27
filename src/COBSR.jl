@@ -50,29 +50,7 @@ function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothi
 end
 
 """
-    COBSdecode(buffer, marker = 0x00)
-
-    Return result of decoding `buffer` from COBS encoded format.
-    The marker must be the same as was used for encode (defaults to zero).
-"""
-function COBSdecode(buffer::AbstractVector, marker = 0x00)
-    decoded = UInt8[]
-    bdx, len = 1, length(buffer)
-    while bdx < len
-        code = buffer[bdx]
-        bdx += 1
-        for _ = 1:code-1
-            push!(decoded, buffer[bdx])
-            bdx += 1
-            bdx > len && break
-        end
-        code < 0xff && bdx < len && push!(decoded, marker)
-    end
-    return decoded
-end
-
-"""
-    COBSRdecode(buffer, marker = 0x00)
+    COBSdecode(buffer, reducedformat = false, marker = 0x00, io = nothing)
 
     Return result of decoding `buffer` from COBS/R encoded format.
     The marker must be the same as was used for encode (defaults to zero).
