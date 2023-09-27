@@ -23,5 +23,5 @@ for t in tests
     @test t == COBSRdecode(COBSRencode(t))
     @test t == COBSRdecode(COBSRencode(t, 3), 3)
     @test t == COBSRdecode(COBSRencode(t, 0xfe), 0xfe)
-    @test 3 ∉ t || t != COBSRdecode(COBSRencode(t, 0), 3)
+    @test 0 ∉ t || t != COBSRdecode(COBSRencode(t, 0), 3)
 end
