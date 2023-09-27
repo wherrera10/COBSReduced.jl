@@ -1,12 +1,12 @@
-# COBSPackets.jl
+# COBSR.jl
 
-## COBS packet encoding in Julia
+## COBS and COBS/R packet encoding in Julia
 
    Features include that the marker can be a byte other than zero.
 
 ### Usage:
 
-    using COBSPackets
+    using COBSR
 
     encoded = COBSencode(bytes)
 
