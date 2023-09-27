@@ -6,7 +6,9 @@ export COBSencode, COBSdecode, COBSRencode, COBSRdecode
     COBSencode(data; reduced = false, marker::UInt8 = 0x00, io = nothing)
 
     Return result of encoding `inputdata` into COBS packet format.
-    Marker defaults to zero but may be any byte from 0 to 254.
+    If `reduced` is true, use the COBS/P protocol (see also ).
+    `marker` defaults to zero but may be any byte from 0 to 254.
+    if `io` is not nothing, write results to stream `io`.
 """
 function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothing)
     writer(io, bytes) = io == nothing ? () : write(io, bytes)
