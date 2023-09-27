@@ -3,12 +3,13 @@ module COBSR
 export COBSencode, COBSdecode, COBSRencode, COBSRdecode
 
 """
-    COBSencode(data)
+    COBSencode(data; reduced = false, marker::UInt8 = 0x00, io = nothing)
 
     Return result of encoding `inputdata` into COBS packet format.
     Marker defaults to zero but may be any byte from 0 to 254.
 """
-function COBSencode(inputdata, marker = 0x00)
+function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothing)
+    writer(io, bytes) = io == nothing ? () : write(io, bytes)
     output = [0xff]
     codeindex, code = 1, 1
     addlastcode = true
