@@ -3,49 +3,16 @@ module COBSR
 export COBSencode, COBSdecode, COBSRencode, COBSRdecode
 
 """
-    COBSencode(data; reduced = false, marker::UInt8 = 0x00, io = nothing)
+    COBSencode(data; reducedformat = false, marker::UInt8 = 0x00, io = nothing)
 
     Return result of encoding `inputdata` into COBS packet format.
-    If `reduced` is true, use the COBS/P protocol (see also ).
+    If `reducedformat` is true, use the COBS/P protocol (see also ).
     `marker` defaults to zero but may be any byte from 0 to 254.
     if `io` is not nothing, write results to stream `io`.
 """
 function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothing)
     writer(io, bytes) = io == nothing ? () : write(io, bytes)
-    output = [0xff]
-    codeindex, code = 1, 1
-    addlastcode = true
-    for byte in inputdata
-        if byte != marker
-            push!(output, byte)
-            code += 1
-        end
-        addlastcode = true
-        if byte == marker || code == 255
-            code == 255 && (addlastcode = false)
-            output[codeindex] = code
-            code = 1
-            push!(output, 0xff)
-            codeindex = length(output)
-        end
-    end
-    if addlastcode
-        output[codeindex] = code
-        push!(output, marker)
-    else
-        output[codeindex] = marker
-    end
-    return output
-end
-
-"""
-    COBSRencode(data, marker = 0x00)
-
-    Return result of encoding `inputdata` into COBS/R packet format.
-    Marker defaults to zero but may be any byte from 0 to 254.
-    See also: pythonhosted.org/cobs/cobsr-intro.html
-"""
-function COBSRencode(inputdata, marker = 0x00)
+    lastoutputpos = 0
     output = [0xff]
     codeindex, lastindex, code = 1, 1, 1
     addlastcode = true
@@ -59,8 +26,10 @@ function COBSRencode(inputdata, marker = 0x00)
             code == 255 && (addlastcode = false)
             output[codeindex] = code
             code = 1
+            writer(io, output[lastoutputpos+1:end]
+            lastoutputpos = length(output)
             push!(output, 0xff)
-            codeindex = length(output)
+            codeindex = lastoutputpos + 1
             byte == marker && (lastindex = codeindex)
         end
     end
@@ -71,14 +40,14 @@ function COBSRencode(inputdata, marker = 0x00)
         output[codeindex] = marker
     end
     # Reduce size output of by 1 char if can
-    if lastindex > 1 && output[end-1] + lastindex > length(output)
+    if reducedformat && lastindex > 1 && output[end-1] + lastindex > length(output)
         output[lastindex] = output[end-1]
         output[end-1] = marker
         pop!(output)
     end
+        writer(io, output[lastoutputpos+1:end])
     return output
 end
-
 
 """
     COBSdecode(buffer, marker = 0x00)
