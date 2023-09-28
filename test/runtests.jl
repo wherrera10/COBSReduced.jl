@@ -16,12 +16,12 @@ const tests = [
 ]
 
 for t in tests
-    @test t == COBSdecode(COBSencode(t))
-    @test t == COBSdecode(COBSencode(t, 3), 3)
-    @test t == COBSdecode(COBSencode(t, 0xfe), 0xfe)
-    @test 0 ∉ t || t != COBSdecode(COBSencode(t, 0), 3)
-    @test t == COBSRdecode(COBSRencode(t))
-    @test t == COBSRdecode(COBSRencode(t, 3), 3)
-    @test t == COBSRdecode(COBSRencode(t, 0xfe), 0xfe)
-    @test 0 ∉ t || t != COBSRdecode(COBSRencode(t, 0), 3)
+    @test t == crdecode(crencode(t))
+    @test t == crdecode(crencode(t, marker = 3), marker = 3)
+    @test t == cdecode(cencode(t, marker = 0xfe), marker = 0xfe)
+    @test 0 ∉ t || t != cdecode(cencode(t, marker = 0), marker = 3)
+    @test t == crdecode(crencode(t))
+    @test t == crdecode(crencode(t, marker = 3), marker = 3)
+    @test t == crdecode(crencode(t, marker = 0xfe), marker = 0xfe)
+    @test 0 ∉ t || t != crdecode(crencode(t, marker = 0), marker = 3)
 end
