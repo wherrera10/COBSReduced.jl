@@ -25,6 +25,11 @@
     encoded5 = crencode(bytes, 5)
     decoded5 = crdecode(encoded5, 5)
 
+    If the marker byte is other than 0, the packet is encoded with marker 0 but then translated to have a
+    different marker by xor of the marker with the packet beforre the encoded packet is returned. The 
+    decoding process then undoes the xor of packet by xoring again with the nonzero marker before decoding.
+    This allows packet transmission with a marker byte other than zero if needed.
+
 #### Decoding packet error handling:
 
     By default decoding errors are ignored, since sending a CRC after each packet is good practice.
