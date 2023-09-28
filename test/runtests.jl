@@ -19,13 +19,19 @@ for t in tests
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == cdecode(cencode(t, marker = 0xfe), marker = 0xfe)
-    setCOBSerrormode(:IGNORE)
-    @test 0 ∉ t || t != cdecode(cencode(t, marker = 0), marker = 3)
-    setCOBSerrormode(:THROW)
+    t2 = cencode(t, marker = 3)
+    if length(t2) > 15
+        t2[3:10] .= 0x00 # introduce error
+        setCOBSerrormode(:WARN)
+        @test_warn "error" length(t2) > 15 && t != cdecode(t2, marker = 0)
+        setCOBSerrormode(:THROW)
+        @test_throws "error" t != cdecode(t2, marker = 0)
+        setCOBSerrormode(:IGNORE)
+        @test_nowarn t != cdecode(t2, marker = 0)
+    end
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == crdecode(crencode(t, marker = 0xfe), marker = 0xfe)
-    setCOBSerrormode(:IGNORE)
-    @test 0 ∉ t || t != crdecode(crencode(t, marker = 0), marker = 3)
-    setCOBSerrormode(:THROW)
+    @test t != crdecode(crencode(t, marker = 3), marker = 0)
 end
+
