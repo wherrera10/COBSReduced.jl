@@ -16,9 +16,9 @@ setCOBSerrormode(mode::Symbol) = begin _errormode[begin] = mode end
 """ reporting for decoding errors (a marker byte in the wrong location) """
 function _err(marker, position)
     if _errormode[begin] == :WARN
-        @warn("error: found marker $marker at $position")
+        @warn("packet error: found $marker at $position")
     elseif _errormode[begin] == :THROW
-        error("error: found marker $marker at $position")
+        error("packet error: found $marker at $position")
     end
 end
 
