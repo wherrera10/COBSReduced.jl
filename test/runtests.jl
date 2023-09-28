@@ -19,9 +19,13 @@ for t in tests
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == cdecode(cencode(t, marker = 0xfe), marker = 0xfe)
+    setCOBSerrormode(:IGNORE)
     @test 0 ∉ t || t != cdecode(cencode(t, marker = 0), marker = 3)
+    setCOBSerrormode(:THROW)
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == crdecode(crencode(t, marker = 0xfe), marker = 0xfe)
+    setCOBSerrormode(:IGNORE)
     @test 0 ∉ t || t != crdecode(crencode(t, marker = 0), marker = 3)
+    setCOBSerrormode(:THROW)
 end
