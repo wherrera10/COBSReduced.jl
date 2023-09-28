@@ -16,21 +16,30 @@ const tests = [
 ]
 
 for t in tests
+    setCOBSerrormode(:THROW)
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == cdecode(cencode(t, marker = 0xfe), marker = 0xfe)
     if length(t) > 14
-        t2 = cencode(t, marker = 3)
-        t2[3:10] .= 0x00 # introduce error
-        setCOBSerrormode(:WARN)
-        @test_warn "error" length(t2) > 15 && t != cdecode(t2, marker = 0)
-        setCOBSerrormode(:THROW)
-        @test_throws "error" t != cdecode(t2, marker = 0)
-        setCOBSerrormode(:IGNORE)
-        @test_nowarn t != cdecode(t2, marker = 0)
+        for m in 0:255
+            t2 = cencode(t, marker = m)
+            t2[3:10] .= m # introduce error
+            setCOBSerrormode(:WARN)
+            @test_warn "error" length(t2) > 15 && t != cdecode(t2, marker = m)
+            setCOBSerrormode(:THROW)
+            @test_throws "error" t != cdecode(t2, marker = m)
+            setCOBSerrormode(:IGNORE)
+            @test_nowarn t != cdecode(t2, marker = m)
+        end
     end
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == crdecode(crencode(t, marker = 0xfe), marker = 0xfe)
-    @test t != crdecode(crencode(t, marker = 3), marker = 0)
+    setCOBSerrormode(:IGNORE)
+    if length(t) > 10
+        for m in 1:255 # marker type change
+            @test t != cdecode(cencode(t, marker = m), marker = 0) 
+            @test t != crdecode(crencode(t, marker = m), marker = 0) 
+        end
+    end
 end
