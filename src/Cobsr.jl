@@ -1,6 +1,6 @@
 module Cobsr
 
-export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode
+export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode 
 export setCOBSerrormode
 
 const _errormode = [:IGNORE]
@@ -12,6 +12,7 @@ const _errormode = [:IGNORE]
    Default is :IGNORE. :WARN prints to stderr, :THROW will cause error exit.
 """
 setCOBSerrormode(mode::Symbol) = begin _errormode[begin] = mode end
+
 
 """ reporting for decoding errors (a marker byte in the wrong location) """
 function _err(marker, position)
@@ -36,30 +37,33 @@ function cobs_encode(inputdata; reduced = false, marker = 0x00)
     codeindex, lastindex, code = 1, 1, 1
     addlastcode = true
     for byte in inputdata
-        if byte != marker
+        if marker != 0x00
+            byte = xor(byte, marker)
+        end
+        if byte != 0x00
             push!(output, byte)
             code += 1
         end
         addlastcode = true
-        if byte == marker || code == 255
+        if byte == 0x00 || code == 255
             code == 255 && (addlastcode = false)
             output[codeindex] = code
             code = 1
             push!(output, 0xff)
             codeindex = length(output)
-            byte == marker && (lastindex = codeindex)
+            byte == 0x00 && (lastindex = codeindex)
         end
     end
     if addlastcode
         output[codeindex] = code
-        push!(output, marker)
+        push!(output, 0x00)
     else
-        output[codeindex] = marker
+        output[codeindex] = 0x00
     end
     # Reduce size output of by 1 char if can
     if reduced && lastindex > 1 && output[end-1] + lastindex > length(output)
         output[lastindex] = output[end-1]
-        output[end-1] = marker
+        output[end-1] = 0x00
         pop!(output)
     end
     return output
@@ -83,21 +87,24 @@ crencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = tru
 function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
     decoded = UInt8[]
     bdx, len = 1, length(buffer)
-    lpos, lchar = 1, marker
+    lpos, lchar = 1, 0
     while bdx < len
         code = buffer[bdx]
+        code == 0x00 && bdx != 1 && _err(marker, bdx)
         lpos, lchar = bdx, code
         bdx += 1
         for _ = 1:code-1
-            push!(decoded, buffer[bdx])
+            byte = buffer[bdx]
+            byte == 0x00 && bdx < len && _err(marker, bdx)
+            push!(decoded, byte)
             bdx += 1
             bdx > len && break
         end
-        code < 0xff && bdx < len && push!(decoded, marker)
+        code < 0xff && bdx < len && push!(decoded, 0x00)
     end
     # Restore from reduced format if present
-    reduced && lchar != marker && lchar + lpos > len && (decoded[end] = lchar)
-    return decoded
+    reduced && lchar != 0x00 && lchar + lpos > len && (decoded[end] = lchar)
+    return marker == 0x00 ? decoded : UInt8.(xor.(decoded, marker))
 end
 
 """ short name for COBS decoding """
