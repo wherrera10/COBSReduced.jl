@@ -50,13 +50,14 @@ function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothi
 end
 
 """
-    COBSdecode(buffer, reducedformat = false, marker = 0x00, io = nothing)
+    COBSdecode(buffer; reducedformat = false, marker = 0x00, io = nothing)
 
     Return result of decoding `buffer` from COBS/R encoded format.
     The marker must be the same as was used for encode (defaults to zero).
     See also: pythonhosted.org/cobs/cobsr-intro.html
 """
-function COBSdecode(buffer::AbstractVector, marker = 0x00)
+function COBSdecode(buffer::AbstractVector; reducedformat = true, marker = 0x00, io = nothing)
+    readbyte(io) = io == nothing ? () : read(io, UInt8)
     decoded = UInt8[]
     bdx, len = 1, length(buffer)
     lpos, lchar = 1, marker
