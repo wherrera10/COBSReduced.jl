@@ -1,4 +1,4 @@
-using COBSR
+using Cobsr
 using Test
 
 const tests = [
