@@ -32,9 +32,9 @@
 
 #### Decoding packet error handling:
 
-    By default decoding errors are ignored, since sending a CRC after each packet is good practice.
+    By default decoding errors are ignored, since having user code send a CRC after each packet is good practice.
     This behavior can be changed using the function `setCOBSerrormode(mode::Symbol)`. This function
-    allows setting of a decoding error reporting mode. 
+    allows setting of a decoding error reporting mode for detectable errors, such as a marker within a packet. 
     
     The default setting is `setCOBSerrormode(:IGNORE)`. Calling `setCOBSerrormode(:WARN)` will result in
     subsequent decoding errors be printed as warnings to stderr. `setCOBSerrormode(:THROW)` will throw an 
