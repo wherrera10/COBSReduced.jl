@@ -13,7 +13,6 @@ const _errormode = [:IGNORE]
 """
 setCOBSerrormode(mode::Symbol) = begin _errormode[begin] = mode end
 
-
 """ reporting for decoding errors (a marker byte in the wrong location) """
 function _err(marker, position)
     if _errormode[begin] == :WARN
@@ -37,9 +36,6 @@ function cobs_encode(inputdata; reduced = false, marker = 0x00)
     codeindex, lastindex, code = 1, 1, 1
     addlastcode = true
     for byte in inputdata
-        if marker != 0x00
-            byte = xor(byte, marker)
-        end
         if byte != 0x00
             push!(output, byte)
             code += 1
@@ -66,7 +62,7 @@ function cobs_encode(inputdata; reduced = false, marker = 0x00)
         output[end-1] = 0x00
         pop!(output)
     end
-    return output
+    return marker == 0x00 ? output : UInt8.(xor.(output, marker))
 end
 
 """ short name for COBS encoding """
@@ -85,16 +81,17 @@ crencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = tru
               COBS/R: pythonhosted.org/cobs/cobsr-intro.html
 """
 function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
+    buf = marker == 0 ? buffer : UInt8.(xor.(copy(buffer), marker))
     decoded = UInt8[]
-    bdx, len = 1, length(buffer)
+    bdx, len = 1, length(buf)
     lpos, lchar = 1, 0
     while bdx < len
-        code = buffer[bdx]
+        code = buf[bdx]
         code == 0x00 && bdx != 1 && _err(marker, bdx)
         lpos, lchar = bdx, code
         bdx += 1
         for _ = 1:code-1
-            byte = buffer[bdx]
+            byte = buf[bdx]
             byte == 0x00 && bdx < len && _err(marker, bdx)
             push!(decoded, byte)
             bdx += 1
@@ -104,7 +101,7 @@ function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
     end
     # Restore from reduced format if present
     reduced && lchar != 0x00 && lchar + lpos > len && (decoded[end] = lchar)
-    return marker == 0x00 ? decoded : UInt8.(xor.(decoded, marker))
+    return decoded
 end
 
 """ short name for COBS decoding """
