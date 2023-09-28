@@ -1,18 +1,17 @@
 module COBSR
 
-export COBSRencode, COBSRdecode
+export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode
 
 """
-    COBSencode(data; reducedformat = true, marker::UInt8 = 0x00, io = nothing)
+    cobs_encode(data; reduced = false, marker = 0x00)
 
-    Return result of encoding `inputdata` into COBS/R packet format (the default.
-    If `reducedformat` is set to false, will translate instead into standard COBS format.
-    `marker` defaults to zero but may be any byte from 0 to 254.
-    if `io` is not nothing, will also write results to stream `io`.
+    Return result of encoding `inputdata` into COBS or COBS/R packet format.
+    If `reduced` is true will use the COBS/R protocol, if false the COBS protocol.
+    The `marker` defaults to zero but may be any byte from 0 to 254.
+    See also: COBS: www.stuartcheshire.org/papers/COBSforToN.pdf
+              COBS/R: pythonhosted.org/cobs/cobsr-intro.html
 """
-function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothing)
-    writer(io, bytes) = io == nothing ? () : write(io, bytes)
-    lastoutputpos = 0
+function cobs_encode(inputdata; reduced = false, marker = 0x00)
     output = [0xff]
     codeindex, lastindex, code = 1, 1, 1
     addlastcode = true
@@ -26,10 +25,8 @@ function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothi
             code == 255 && (addlastcode = false)
             output[codeindex] = code
             code = 1
-            writer(io, output[lastoutputpos+1:end]
-            lastoutputpos = length(output)
             push!(output, 0xff)
-            codeindex = lastoutputpos + 1
+            codeindex = length(output)
             byte == marker && (lastindex = codeindex)
         end
     end
@@ -40,42 +37,53 @@ function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothi
         output[codeindex] = marker
     end
     # Reduce size output of by 1 char if can
-    if reducedformat && lastindex > 1 && output[end-1] + lastindex > length(output)
+    if reduced && lastindex > 1 && output[end-1] + lastindex > length(output)
         output[lastindex] = output[end-1]
         output[end-1] = marker
         pop!(output)
     end
-        writer(io, output[lastoutputpos+1:end])
     return output
 end
 
-"""
-    COBSdecode(buffer; reducedformat = true, marker = 0x00, io = nothing)
+""" short name for COBS encoding """
+cencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = false)
 
-    Return result of decoding `buffer` from COBS/R encoded format (COBS/R is default).
-    If `reducedformat` is set to false, will translate as per standard COBS format.
-    If `io` is not `nothing`, read input from stream io until eof() instead of from buffer input.
-    The marker must be the same as was used for encode (defaults to zero).
-    See also: pythonhosted.org/cobs/cobsr-intro.html
+""" short name for COBS/R encoding """
+crencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = true)
+
 """
-function COBSdecode(buffer::AbstractVector = UInt8[]; reducedformat = true, marker = 0x00, io = nothing)
+    cobs_decode(buffer; reduced = false, marker = 0x00)
+
+    Return result of decoding `inputdata` from COBS or COBS/R packet format.
+    If `reduced` is true will use the COBS/R protocol, if false the COBS protocol.
+    The `marker` defaults to zero but may be any byte from 0 to 254.
+    See also: COBS: www.stuartcheshire.org/papers/COBSforToN.pdf
+              COBS/R: pythonhosted.org/cobs/cobsr-intro.html
+"""
+function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
     decoded = UInt8[]
-    bdx, len = 1, (io == nothing ? typemax(Int) : length(buffer))
-    readbyte() = io == nothing ? buffer[bdx] : read(io, UInt8)
-    code, lpos, lchar = 0x00, 1, marker
-    while (code = readbyte()) != 0
+    bdx, len = 1, length(buffer)
+    lpos, lchar = 1, marker
+    while bdx < len
+        code = buffer[bdx]
         lpos, lchar = bdx, code
         bdx += 1
         for _ = 1:code-1
-            push!(decoded, readbyte())
+            push!(decoded, buffer[bdx])
             bdx += 1
-            bdx > len || decoded[end] == marker && break
+            bdx > len && break
         end
         code < 0xff && bdx < len && push!(decoded, marker)
     end
-    # Restore from reduced format if using COBS/R and reduced format present
-    reducedformat && lchar != marker && lchar + lpos > len && (decoded[end] = lchar)
+    # Restore from reduced format if present
+    reduced && lchar != marker && lchar + lpos > len && (decoded[end] = lchar)
     return decoded
 end
+
+""" short name for COBS decoding """
+cdecode(data; marker = 0x00) = cobs_decode(data, marker = marker, reduced = false)
+
+""" short name for COBS/R decoding """
+crdecode(data; marker = 0x00) = cobs_decode(data, marker = marker, reduced = true)
 
 end # module
