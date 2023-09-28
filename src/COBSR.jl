@@ -69,7 +69,7 @@ function COBSdecode(buffer::AbstractVector = UInt8[]; reducedformat = true, mark
         for _ = 1:code-1
             push!(decoded, readbyte())
             bdx += 1
-            bdx > len || decoded[end] == 0 && break
+            bdx > len || decoded[end] == marker && break
         end
         code < 0xff && bdx < len && push!(decoded, marker)
     end
