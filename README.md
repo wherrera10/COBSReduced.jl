@@ -24,4 +24,13 @@
 
     encoded5 = crencode(bytes, 5)
     decoded5 = crdecode(encoded5, 5)
+
+#### Decoding packet error handling:
+
+    By default decoding errors are ignored, since sending a CRC after each packet is good practice.
+    This behavior can be changed using the function `setCOBSerrormode(mode::Symbol)`. This function
+    allows setting of a decoding error reporting mode. 
     
+    The default setting is `setCOBSerrormode(:IGNORE)`. Calling `setCOBSerrormode(:WARN)` will result in
+    subsequent decoding errors be printed as warnings to stderr. `setCOBSerrormode(:THROW)` will throw an 
+    exception which may cause immediate error exit.
