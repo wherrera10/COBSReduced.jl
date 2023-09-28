@@ -96,7 +96,10 @@ function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
             byte == 0x00 && bdx < len && _err(marker, bdx)
             push!(decoded, byte)
             bdx += 1
-            bdx > len && break
+            if bdx > len
+                !reduced && _err("index", "past end of packet")
+                break
+            end
         end
         code < 0xff && bdx < len && push!(decoded, 0x00)
     end
