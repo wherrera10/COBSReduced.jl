@@ -1,4 +1,4 @@
-module COBSR
+module Cobsr
 
 export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode
 
