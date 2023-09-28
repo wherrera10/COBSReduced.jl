@@ -56,19 +56,21 @@ end
     The marker must be the same as was used for encode (defaults to zero).
     See also: pythonhosted.org/cobs/cobsr-intro.html
 """
-function COBSdecode(buffer::AbstractVector; reducedformat = true, marker = 0x00, io = nothing)
-    readbyte(io) = io == nothing ? () : read(io, UInt8)
+function COBSdecode(buffer::AbstractVector = UInt8[]; reducedformat = true, marker = 0x00, io = nothing)
+    readbyte() = io == nothing ? buffer[bdx] : read(io, UInt8)
     decoded = UInt8[]
-    bdx, len = 1, length(buffer)
+    bdx, len = 1, io == nothing ? typemax(Int) : length(buffer)
+    notatend() = io == nothing ? bdx < len : !eof(io)
+    atend() = io == nothing ? bdx > len : eof(io)
     lpos, lchar = 1, marker
-    while bdx < len
-        code = buffer[bdx]
+    while notatend()
+        code = readbyte()
         lpos, lchar = bdx, code
         bdx += 1
         for _ = 1:code-1
-            push!(decoded, buffer[bdx])
+            push!(decoded, readbyte())
             bdx += 1
-            bdx > len && break
+            atend() && break
         end
         code < 0xff && bdx < len && push!(decoded, marker)
     end
