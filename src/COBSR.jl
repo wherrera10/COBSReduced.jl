@@ -1,6 +1,6 @@
 module COBSR
 
-export COBSencode, COBSdecode, COBSRencode, COBSRdecode
+export COBSRencode, COBSRdecode
 
 """
     COBSencode(data; reducedformat = true, marker::UInt8 = 0x00, io = nothing)
