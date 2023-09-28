@@ -81,6 +81,7 @@ crencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = tru
               COBS/R: pythonhosted.org/cobs/cobsr-intro.html
 """
 function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
+    buffer[end] != marker && err(buffer[end], "end")
     buf = marker == 0 ? buffer : UInt8.(xor.(copy(buffer), marker))
     decoded = UInt8[]
     bdx, len = 1, length(buf)
