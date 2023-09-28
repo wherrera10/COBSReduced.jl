@@ -3,12 +3,12 @@ module COBSR
 export COBSencode, COBSdecode, COBSRencode, COBSRdecode
 
 """
-    COBSencode(data; reducedformat = false, marker::UInt8 = 0x00, io = nothing)
+    COBSencode(data; reducedformat = true, marker::UInt8 = 0x00, io = nothing)
 
-    Return result of encoding `inputdata` into COBS packet format.
-    If `reducedformat` is true, use the COBS/P protocol (see also ).
+    Return result of encoding `inputdata` into COBS/R packet format (the default.
+    If `reducedformat` is set to false, will translate instead into standard COBS format.
     `marker` defaults to zero but may be any byte from 0 to 254.
-    if `io` is not nothing, write results to stream `io`.
+    if `io` is not nothing, will also write results to stream `io`.
 """
 function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothing)
     writer(io, bytes) = io == nothing ? () : write(io, bytes)
@@ -50,16 +50,18 @@ function COBSencode(inputdata; reduced = false, marker::UInt8 = 0x00, io = nothi
 end
 
 """
-    COBSdecode(buffer; reducedformat = false, marker = 0x00, io = nothing)
+    COBSdecode(buffer; reducedformat = true, marker = 0x00, io = nothing)
 
-    Return result of decoding `buffer` from COBS/R encoded format.
+    Return result of decoding `buffer` from COBS/R encoded format (COBS/R is default).
+    If `reducedformat` is set to false, will translate as per standard COBS format.
+    If `io` is not `nothing`, read input from stream io until eof() instead of from buffer input.
     The marker must be the same as was used for encode (defaults to zero).
     See also: pythonhosted.org/cobs/cobsr-intro.html
 """
 function COBSdecode(buffer::AbstractVector = UInt8[]; reducedformat = true, marker = 0x00, io = nothing)
-    readbyte() = io == nothing ? buffer[bdx] : read(io, UInt8)
     decoded = UInt8[]
     bdx, len = 1, io == nothing ? typemax(Int) : length(buffer)
+    readbyte() = io == nothing ? buffer[bdx] : read(io, UInt8)
     notatend() = io == nothing ? bdx < len : !eof(io)
     atend() = io == nothing ? bdx > len : eof(io)
     lpos, lchar = 1, marker
