@@ -19,8 +19,8 @@ for t in tests
     @test t == crdecode(crencode(t))
     @test t == crdecode(crencode(t, marker = 3), marker = 3)
     @test t == cdecode(cencode(t, marker = 0xfe), marker = 0xfe)
-    t2 = cencode(t, marker = 3)
-    if length(t2) > 15
+    if length(t) > 14
+        t2 = cencode(t, marker = 3)
         t2[3:10] .= 0x00 # introduce error
         setCOBSerrormode(:WARN)
         @test_warn "error" length(t2) > 15 && t != cdecode(t2, marker = 0)
@@ -34,4 +34,3 @@ for t in tests
     @test t == crdecode(crencode(t, marker = 0xfe), marker = 0xfe)
     @test t != crdecode(crencode(t, marker = 3), marker = 0)
 end
-
