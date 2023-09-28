@@ -60,19 +60,16 @@ end
 """
 function COBSdecode(buffer::AbstractVector = UInt8[]; reducedformat = true, marker = 0x00, io = nothing)
     decoded = UInt8[]
-    bdx, len = 1, io == nothing ? typemax(Int) : length(buffer)
+    bdx, len = 1, (io == nothing ? typemax(Int) : length(buffer))
     readbyte() = io == nothing ? buffer[bdx] : read(io, UInt8)
-    notatend() = io == nothing ? bdx < len : !eof(io)
-    atend() = io == nothing ? bdx > len : eof(io)
-    lpos, lchar = 1, marker
-    while notatend()
-        code = readbyte()
+    code, lpos, lchar = 0x00, 1, marker
+    while (code = readbyte()) != 0
         lpos, lchar = bdx, code
         bdx += 1
         for _ = 1:code-1
             push!(decoded, readbyte())
             bdx += 1
-            atend() && break
+            bdx > len || decoded[end] == 0 && break
         end
         code < 0xff && bdx < len && push!(decoded, marker)
     end
