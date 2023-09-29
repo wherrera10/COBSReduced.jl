@@ -1,7 +1,6 @@
 module Cobsr
 
-export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode 
-export setCOBSerrormode
+export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode, setCOBSerrormode
 
 const _errormode = [:IGNORE]
 
