@@ -1,4 +1,4 @@
-module Cobsr
+module COBSReduced
 
 export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode, setCOBSerrormode
 
