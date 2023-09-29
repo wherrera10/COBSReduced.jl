@@ -1,6 +1,6 @@
-# Cobsr.jl
+# COBSReduced.jl
 
-## COBS and COBS/R packet encoding in Julia
+## COBS and COBS/Reduced packet encoding in Julia
 
    Features include that the marker can be a byte other than zero. Defaults to COBS protocol, but if
    the named argument `reduced` is set true will use COBS/R, which often saves a byte in packet overhead.
