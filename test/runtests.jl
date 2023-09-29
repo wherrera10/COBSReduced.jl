@@ -1,4 +1,4 @@
-using Cobsr
+using COBSReduced
 using Test
 
 const tests = [
