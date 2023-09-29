@@ -62,7 +62,7 @@ function cobs_encode(inputdata; reduced = false, marker = 0x00)
         output[end-1] = 0x00
         pop!(output)
     end
-    return marker == 0x00 ? output : UInt8.(xor.(output, marker))
+    return marker == 0x00 ? output : UInt8.(output .⊻ marker)
 end
 
 """ short name for COBS encoding """
@@ -81,8 +81,8 @@ crencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = tru
               COBS/R: pythonhosted.org/cobs/cobsr-intro.html
 """
 function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
-    buffer[end] != marker && err(buffer[end], "end")
-    buf = marker == 0 ? buffer : UInt8.(xor.(copy(buffer), marker))
+    buffer[end] != marker && _err(buffer[end], "end")
+    buf = marker == 0 ? buffer : UInt8.(copy(buffer) .⊻ marker)
     decoded = UInt8[]
     bdx, len = 1, length(buf)
     lpos, lchar = 1, 0
@@ -97,7 +97,7 @@ function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
             push!(decoded, byte)
             bdx += 1
             if bdx > len
-                !reduced && _err("index", "past end of packet")
+                !reduced && _err("index", "\b\b\bpast end of packet")
                 break
             end
         end
