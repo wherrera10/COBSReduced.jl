@@ -42,4 +42,9 @@ for t in tests
             @test t != crdecode(crencode(t, marker = m), marker = 0) 
         end
     end
+    setCOBSerrormode(:WARN)
+    if !isempty(setdiff(cencode(t), crencode(t)))
+        @test_warn "past" t != cdecode(crencode(t))
+    end
 end
+
