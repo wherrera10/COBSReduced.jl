@@ -7,7 +7,7 @@
 
 ### Usage:
 
-    using Cobsr
+    using COBSReduced
 
     # COBS protocol use
     encoded = cobs_encode(bytes)
