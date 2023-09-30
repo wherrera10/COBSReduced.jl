@@ -15,7 +15,7 @@
 
     # COBS/R protocol use
     encoded = cobs_encode(bytes, reduced = true)
-    decoded = COBSRdecode(encoded, reduced = true)
+    decoded = cobs_decode(encoded, reduced = true)
 
     # or, using short names, and with marker byte chosen to be 0x05 instead of 0:
 
