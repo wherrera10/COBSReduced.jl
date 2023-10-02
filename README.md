@@ -19,11 +19,11 @@
 
     # or, using short names, and with marker byte chosen to be 0x05 instead of 0:
 
-    encoded5 = cencode(bytes, 5)
-    decoded5 = cdecode(encoded5, 5)
+    encoded5 = cencode(bytes, marker = 5)
+    decoded5 = cdecode(encoded5, marker =5)
 
-    encoded5 = crencode(bytes, 5)
-    decoded5 = crdecode(encoded5, 5)
+    encoded5 = crencode(bytes, marker = 5)
+    decoded5 = crdecode(encoded5, marker = 5)
 
     If the marker byte is other than 0, the packet is encoded with marker 0 but then translated to have a
     different marker by xor of the marker with the packet just before the encoded packet is returned. The 
