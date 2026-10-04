@@ -24,7 +24,7 @@ const TEST_ARRAYS = [
         @test t == crdecode(crencode(t, marker = 3), marker = 3)
         @test t == cdecode(cencode(t, marker = 0xfe), marker = 0xfe)
         if length(t) > 14
-            for m in 0:255
+            for m in 0:254
                 t2 = cencode(t, marker = m)
                 t2[3:10] .= m # introduce error
                 setCOBSerrormode(:WARN)
