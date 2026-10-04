@@ -17,7 +17,7 @@ const TEST_ARRAYS = [
     [collect(0x03:0xff); 0x00; 0x01],
 ]
 
-@testset "with_various_inputs           " begin    
+@testset "with_various_inputs            " begin    
     for t in TEST_ARRAYS
         setCOBSerrormode(:THROW)
         @test t == crdecode(crencode(t))
@@ -70,7 +70,7 @@ end
     end
 end
 
-@testset "COBS and COBS/R round trips   " begin
+@testset "COBS and COBS/R round trips    " begin
     inputs = [
         UInt8[],
         UInt8[0],
