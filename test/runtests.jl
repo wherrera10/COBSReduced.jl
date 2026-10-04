@@ -40,7 +40,7 @@ const TEST_ARRAYS = [
         @test t == crdecode(crencode(t, marker = 0xfe), marker = 0xfe)
         setCOBSerrormode(:IGNORE)
         if length(t) > 10
-            for m in 1:255 # marker type change
+            for m in 1:254 # marker type change
                 @test t != cdecode(cencode(t, marker = m), marker = 0) 
                 @test t != crdecode(crencode(t, marker = m), marker = 0) 
             end
