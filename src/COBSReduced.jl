@@ -21,6 +21,7 @@ function _err(marker, position)
     end
 end
 
+""" validate a provided marker """
 function _validate_marker(marker)
     marker isa Integer && 0 <= marker <= 254 ||
         throw(ArgumentError("marker must be an integer from 0 to 254"))
