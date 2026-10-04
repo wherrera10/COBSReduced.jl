@@ -21,16 +21,24 @@ function _err(marker, position)
     end
 end
 
+function _validate_marker(marker)
+    marker isa Integer && 0 <= marker <= 254 ||
+        throw(ArgumentError("marker must be an integer from 0 to 254"))
+    return UInt8(marker)
+end
+
 """
     cobs_encode(data; reduced = false, marker = 0x00)
 
     Return result of encoding `inputdata` into COBS or COBS/R packet format.
     If `reduced` is true will use the COBS/R protocol, if false the COBS protocol.
     The `marker` defaults to zero but may be any byte from 0 to 254.
+    Throws `ArgumentError` if `marker` is outside that range.
     See also: COBS: www.stuartcheshire.org/papers/COBSforToN.pdf
               COBS/R: pythonhosted.org/cobs/cobsr-intro.html
 """
 function cobs_encode(inputdata; reduced = false, marker = 0x00)
+    marker = _validate_marker(marker)
     output = [0xff]
     codeindex, lastindex, code = 1, 1, 1
     addlastcode = true
@@ -76,10 +84,13 @@ crencode(data; marker = 0x00) = cobs_encode(data, marker = marker, reduced = tru
     Return result of decoding `inputdata` from COBS or COBS/R packet format.
     If `reduced` is true will use the COBS/R protocol, if false the COBS protocol.
     The `marker` defaults to zero but may be any byte from 0 to 254.
+    Throws `ArgumentError` if `marker` is outside that range or `buffer` is empty.
     See also: COBS: www.stuartcheshire.org/papers/COBSforToN.pdf
               COBS/R: pythonhosted.org/cobs/cobsr-intro.html
 """
 function cobs_decode(buffer::AbstractVector; reduced = false, marker = 0x00)
+    marker = _validate_marker(marker)
+    isempty(buffer) && throw(ArgumentError("buffer must not be empty"))
     buffer[end] != marker && _err(buffer[end], "end")
     buf = marker == 0 ? buffer : UInt8.(copy(buffer) .⊻ marker)
     decoded = UInt8[]
@@ -113,4 +124,5 @@ cdecode(data; marker = 0x00) = cobs_decode(data, marker = marker, reduced = fals
 """ short name for COBS/R decoding """
 crdecode(data; marker = 0x00) = cobs_decode(data, marker = marker, reduced = true)
 
-end # module
+
+end # module COBSReduced
