@@ -17,7 +17,7 @@ const TEST_ARRAYS = [
     [collect(0x03:0xff); 0x00; 0x01],
 ]
 
-@testset "with_various_inputs          " begin    
+@testset "with_various_inputs           " begin    
     for t in TEST_ARRAYS
         setCOBSerrormode(:THROW)
         @test t == crdecode(crencode(t))
@@ -53,7 +53,7 @@ const TEST_ARRAYS = [
 
 end
 
-@testset "COBS marker validation        " begin
+@testset "COBS marker validation         " begin
     for marker in (0, 254)
         input = UInt8[1, 0, 2, 254]
         @test COBS.cobs_decode(COBS.cobs_encode(input; marker); marker) == input
