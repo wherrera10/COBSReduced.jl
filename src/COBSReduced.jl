@@ -2,7 +2,7 @@ module COBSReduced
 
 export cobs_encode, cobs_decode, cencode, cdecode, crencode, crdecode, setCOBSerrormode
 
-const _errormode = [:IGNORE]
+const _ERROR_MODE = Ref{Symbol}(:IGNORE)
 
 """ 
     setCOBSerrormode(mode::Symbol)
@@ -10,15 +10,15 @@ const _errormode = [:IGNORE]
    Set decoding error reporting mode.
    Default is :IGNORE. :WARN prints to stderr, :THROW will cause error exit.
 """
-setCOBSerrormode(mode::Symbol) = begin _errormode[begin] = mode end
+setCOBSerrormode(mode::Symbol) = (_ERROR_MODE[] = mode) 
 
 """ reporting for decoding errors (a marker byte in the wrong location) """
 function _err(marker, position)
-    if _errormode[begin] == :WARN
+    if _ERROR_MODE[] == :WARN
         @warn("packet error: found $marker at $position")
-    elseif _errormode[begin] == :THROW
+    elseif _ERROR_MODE[] == :THROW
         error("packet error: found $marker at $position")
-    end
+    end # ignore if set to :IGNORE
 end
 
 """ validate a provided marker """
